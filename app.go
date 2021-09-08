@@ -325,7 +325,7 @@ func (app *App) Start() {
 	}
 	//定时数据
 	app.periodicMetrics()
-	//开始监听
+	//开始循环监听
 	app.listen()
 	//延迟关闭
 	defer func() {
@@ -339,7 +339,7 @@ func (app *App) Start() {
 	// stop server
 	select {
 	case <-app.dieChan:
-		logger.Log.Warn("the app will shutdown in a few seconds")
+		logger.Log.Warn("the app will shutdown in a few seconds  该应用程序将在几秒钟内关闭")
 	case s := <-sg:
 		logger.Log.Warn("got signal: ", s, ", shutting down...")
 		close(app.dieChan)
@@ -350,17 +350,19 @@ func (app *App) Start() {
 	app.sessionPool.CloseAll()
 	//关闭所有模块
 	app.shutdownModules()
-	//关闭所有组件x
+	//关闭所有组件
 	app.shutdownComponents()
 }
-//监听
+//循环监听
 func (app *App) listen() {
 	app.startupComponents()
 	// create global ticker instance, timer precision could be customized
 	// by SetTimerPrecision
+	//创建全局定时器实例，通过SetTimerPrecision 可以自定义定时器精度
 	timer.GlobalTicker = time.NewTicker(timer.Precision)
-
+ 	//log
 	logger.Log.Infof("starting server %s:%s", app.server.Type, app.server.ID)
+	//派发 handler
 	for i := 0; i < app.config.Concurrency.Handler.Dispatch; i++ {
 		go app.handlerService.Dispatch(i)
 	}
@@ -375,20 +377,20 @@ func (app *App) listen() {
 		go func() {
 			a.ListenAndServe()
 		}()
-
+		//log 监听从addr的接收器
 		logger.Log.Infof("listening with acceptor %s on addr %s", reflect.TypeOf(a), a.GetAddr())
 	}
-
+	//如果集群并且服务器在前并且回话是独立的 创建一个独立回话 添加给远程监听 并注册回话的模块
 	if app.serverMode == Cluster && app.server.Frontend && app.config.Session.Unique {
 		unique := mods.NewUniqueSession(app.server, app.rpcServer, app.rpcClient, app.sessionPool)
 		app.remoteService.AddRemoteBindingListener(unique)
 		app.RegisterModule(unique, "uniqueSession")
 	}
-
+	//启动模块
 	app.startModules()
 
 	logger.Log.Info("all modules started!")
-
+	//启动成功
 	app.running = true
 }
 
@@ -402,16 +404,17 @@ func (app *App) SetDictionary(dict map[string]uint16) error {
 }
 
 // AddRoute adds a routing function to a server type
-func (app *App) AddRoute(
-	serverType string,
-	routingFunction router.RoutingFunc,
-) error {
+// 向服务器类型添加路由功能
+func (app *App) AddRoute(serverType string, routingFunction router.RoutingFunc, ) error {
 	if app.router != nil {
+		//如果app正在运行返回错误码
 		if app.running {
 			return constants.ErrChangeRouteWhileRunning
 		}
+		//添加
 		app.router.AddRoute(serverType, routingFunction)
 	} else {
+		//错误码 
 		return constants.ErrRouterNotInitialized
 	}
 	return nil

@@ -112,6 +112,7 @@ func (a *TCPAcceptor) hasTLSCertificates() bool {
 	return a.certFile != "" && a.keyFile != ""
 }
 
+// 用tcp监听服务
 // ListenAndServe using tcp acceptor
 func (a *TCPAcceptor) ListenAndServe() {
 	if a.hasTLSCertificates() {

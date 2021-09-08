@@ -113,6 +113,7 @@ func NewHandlerService(
 }
 
 // Dispatch message to corresponding logic handler
+// 将消息分派到相应的逻辑处理程序
 func (h *HandlerService) Dispatch(thread int) {
 	// TODO: This timer is being stopped multiple times, it probably doesn't need to be stopped here
 	defer timer.GlobalTicker.Stop()
@@ -161,6 +162,7 @@ func (h *HandlerService) Register(comp component.Component, opts []component.Opt
 }
 
 // Handle handles messages from a conn
+// 处理来自conn的消息
 func (h *HandlerService) Handle(conn acceptor.PlayerConn) {
 	// create a client agent and startup write goroutine
 	a := h.agentFactory.CreateAgent(conn)

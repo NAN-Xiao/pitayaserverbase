@@ -36,6 +36,7 @@ type UniqueSession struct {
 }
 
 // NewUniqueSession creates a new unique session module
+// 创建一个新的独立会话模块
 func NewUniqueSession(server *cluster.Server, rpcServer cluster.RPCServer, rpcClient cluster.RPCClient, sessionPool session.SessionPool) *UniqueSession {
 	return &UniqueSession{
 		server:      server,

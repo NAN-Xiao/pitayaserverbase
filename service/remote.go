@@ -132,6 +132,7 @@ func (r *RemoteService) remoteProcess(
 }
 
 // AddRemoteBindingListener adds a listener
+// 添加一个监听者
 func (r *RemoteService) AddRemoteBindingListener(bindingListener cluster.RemoteBindingListener) {
 	r.remoteBindingListeners = append(r.remoteBindingListeners, bindingListener)
 }
