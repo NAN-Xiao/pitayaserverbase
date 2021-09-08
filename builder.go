@@ -215,6 +215,7 @@ func (builder *Builder) AddAcceptor(ac acceptor.Acceptor) {
 }
 
 // Build returns a valid App instance
+// 返回一个有效的app实例
 func (builder *Builder) Build() Pitaya {
 	handlerPool := service.NewHandlerPool()
 	var remoteService *service.RemoteService
@@ -291,15 +292,16 @@ func (builder *Builder) Build() Pitaya {
 }
 
 // NewDefaultApp returns a default pitaya app instance
+// 返回一个默认的app实例
 func NewDefaultApp(isFrontend bool, serverType string, serverMode ServerMode, serverMetadata map[string]string, config config.BuilderConfig) Pitaya {
 	builder := NewDefaultBuilder(isFrontend, serverType, serverMode, serverMetadata, config)
 	return builder.Build()
 }
-
+//配置默认管线
 func configureDefaultPipelines(handlerHooks *pipeline.HandlerHooks) {
 	handlerHooks.BeforeHandler.PushBack(defaultpipelines.StructValidatorInstance.Validate)
 }
-
+// 添加默认普罗米修斯
 func addDefaultPrometheus(config config.PrometheusConfig, customMetrics models.CustomMetricsSpec, reporters []metrics.Reporter, serverType string) []metrics.Reporter {
 	prometheus, err := CreatePrometheusReporter(serverType, config, customMetrics)
 	if err != nil {
@@ -309,7 +311,7 @@ func addDefaultPrometheus(config config.PrometheusConfig, customMetrics models.C
 	}
 	return reporters
 }
-
+// 添加一个默认的规则
 func addDefaultStatsd(config config.StatsdConfig, reporters []metrics.Reporter, serverType string) []metrics.Reporter {
 	statsd, err := CreateStatsdReporter(serverType, config)
 	if err != nil {

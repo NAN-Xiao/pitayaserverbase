@@ -298,7 +298,7 @@ func (app *App) periodicMetrics() {
 // 启动aap 整个服务器的入口
 func (app *App) Start() {
 	if !app.server.Frontend && len(app.acceptors) > 0 {
-		logger.Log.Fatal("acceptors are not allowed on backend servers[后台服务器上不允许接受器]")
+		logger.Log.Fatal("acceptors are not allowed on backend servers 后台服务器上不允许接受器]")
 	}
 
 	if app.server.Frontend && len(app.acceptors) == 0 {
@@ -414,7 +414,7 @@ func (app *App) AddRoute(serverType string, routingFunction router.RoutingFunc, 
 		//添加
 		app.router.AddRoute(serverType, routingFunction)
 	} else {
-		//错误码 
+		//错误码
 		return constants.ErrRouterNotInitialized
 	}
 	return nil
