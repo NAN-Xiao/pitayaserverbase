@@ -210,6 +210,7 @@ func NewApp(
 }
 
 // GetDieChan gets the channel that the app sinalizes when its going to die
+// 获取应用程序将要死亡时信号的通道
 func (app *App) GetDieChan() chan bool {
 	return app.dieChan
 }
@@ -287,13 +288,13 @@ func (app *App) periodicMetrics() {
 // 启动aap 整个服务器的入口
 func (app *App) Start() {
 	if !app.server.Frontend && len(app.acceptors) > 0 {
-		logger.Log.Fatal("acceptors are not allowed on backend servers")
+		logger.Log.Fatal("acceptors are not allowed on backend servers[后台服务器上不允许接受器]")
 	}
 
 	if app.server.Frontend && len(app.acceptors) == 0 {
-		logger.Log.Fatal("frontend servers should have at least one configured acceptor")
+		logger.Log.Fatal("frontend servers should have at least one configured acceptor[前端服务器应该至少有一个已配置的接受程序]")
 	}
-
+	//是否是集群
 	if app.serverMode == Cluster {
 		if reflect.TypeOf(app.rpcClient) == reflect.TypeOf(&cluster.GRPCClient{}) {
 			app.serviceDiscovery.AddListener(app.rpcClient.(*cluster.GRPCClient))
@@ -312,11 +313,11 @@ func (app *App) Start() {
 			logger.Log.Fatal("failed to register service discovery module: %s", err.Error())
 		}
 	}
-
+	//定时数据
 	app.periodicMetrics()
-
+	//开始监听
 	app.listen()
-
+	//延迟关闭
 	defer func() {
 		timer.GlobalTicker.Stop()
 		app.running = false
@@ -335,9 +336,11 @@ func (app *App) Start() {
 	}
 
 	logger.Log.Warn("server is stopping...")
-
+	//关闭所有回话
 	app.sessionPool.CloseAll()
+	//关闭所有模块
 	app.shutdownModules()
+	//关闭所有组件x
 	app.shutdownComponents()
 }
 

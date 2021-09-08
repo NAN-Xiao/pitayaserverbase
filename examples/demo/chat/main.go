@@ -119,6 +119,7 @@ func main() {
 	}
 
 	// rewrite component and handler name
+	//重写组件和处理程序名称
 	room := NewRoom(app)
 	app.Register(room,
 		component.WithName("room"),

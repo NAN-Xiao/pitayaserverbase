@@ -11,6 +11,7 @@ import (
 )
 
 // Report sends periodic of worker reports
+// 定时发送works的报告
 func Report(reporters []metrics.Reporter, period time.Duration) {
 	for {
 		time.Sleep(period)

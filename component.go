@@ -31,15 +31,17 @@ type regComp struct {
 }
 
 // Register register a component with options
+// 使用选项注册注册组件
 func (app *App) Register(c component.Component, options ...component.Option) {
 	app.handlerComp = append(app.handlerComp, regComp{c, options})
 }
 
 // RegisterRemote register a remote component with options
+// 使用选项注册远程组件
 func (app *App) RegisterRemote(c component.Component, options ...component.Option) {
 	app.remoteComp = append(app.remoteComp, regComp{c, options})
 }
-
+//初始化Components[组件]
 func (app *App) startupComponents() {
 	// handler component initialize hooks
 	for _, c := range app.handlerComp {

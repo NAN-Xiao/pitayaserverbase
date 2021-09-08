@@ -34,6 +34,7 @@ import (
 )
 
 // Worker executes RPCs with retry and backoff time
+// Worker 执行带有重试和回退时间的rpc
 type Worker struct {
 	concurrency int
 	registered  bool
