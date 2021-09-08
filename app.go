@@ -216,41 +216,49 @@ func (app *App) GetDieChan() chan bool {
 }
 
 // SetDebug toggles debug on/off
+// 设置debug开关
 func (app *App) SetDebug(debug bool) {
 	app.debug = debug
 }
 
 // SetHeartbeatTime sets the heartbeat time
+// 设置心跳时间
 func (app *App) SetHeartbeatTime(interval time.Duration) {
 	app.heartbeat = interval
 }
 
 // GetServerID returns the generated server id
+// 获取生成的server id
 func (app *App) GetServerID() string {
 	return app.server.ID
 }
 
 // GetMetricsReporters gets registered metrics reporters
+// 或缺注册的记录
 func (app *App) GetMetricsReporters() []metrics.Reporter {
 	return app.metricsReporters
 }
 
 // GetServer gets the local server instance
+// 获取本地服务器实例
 func (app *App) GetServer() *cluster.Server {
 	return app.server
 }
 
 // GetServerByID returns the server with the specified id
+// 根据id返回服务器
 func (app *App) GetServerByID(id string) (*cluster.Server, error) {
 	return app.serviceDiscovery.GetServer(id)
 }
 
 // GetServersByType get all servers of type
+// 获取所有类型的服务器
 func (app *App) GetServersByType(t string) (map[string]*cluster.Server, error) {
 	return app.serviceDiscovery.GetServersByType(t)
 }
 
 // GetServers get all servers
+// 获取所有的服务器
 func (app *App) GetServers() []*cluster.Server {
 	return app.serviceDiscovery.GetServers()
 }
@@ -258,15 +266,17 @@ func (app *App) GetServers() []*cluster.Server {
 // IsRunning indicates if the Pitaya app has been initialized. Note: This
 // doesn't cover acceptors, only the pitaya internal registration and modules
 // initialization.
+// 指示火龙果应用程序是否已初始化。注意:这个 不包括接受器，只有火龙果内部注册和模块 初始化。
 func (app *App) IsRunning() bool {
 	return app.running
 }
 
 // SetLogger logger setter
+// 设置logger
 func SetLogger(l logging.Logger) {
 	logger.Log = l
 }
-
+// 初始化远程系统
 func (app *App) initSysRemotes() {
 	sys := remote.NewSys(app.sessionPool)
 	app.RegisterRemote(sys,
@@ -274,7 +284,7 @@ func (app *App) initSysRemotes() {
 		component.WithNameFunc(strings.ToLower),
 	)
 }
-
+// 周期性的指标
 func (app *App) periodicMetrics() {
 	period := app.config.Metrics.Period
 	go metrics.ReportSysMetrics(app.metricsReporters, period)
@@ -343,7 +353,7 @@ func (app *App) Start() {
 	//关闭所有组件x
 	app.shutdownComponents()
 }
-
+//监听
 func (app *App) listen() {
 	app.startupComponents()
 	// create global ticker instance, timer precision could be customized
@@ -383,6 +393,7 @@ func (app *App) listen() {
 }
 
 // SetDictionary sets routes map
+// AddRoute为服务器类型添加路由功能
 func (app *App) SetDictionary(dict map[string]uint16) error {
 	if app.running {
 		return constants.ErrChangeDictionaryWhileRunning
@@ -407,6 +418,7 @@ func (app *App) AddRoute(
 }
 
 // Shutdown send a signal to let 'pitaya' shutdown itself.
+// 关机会发出信号，让火龙果自动关机
 func (app *App) Shutdown() {
 	select {
 	case <-app.dieChan: // prevent closing closed channel
@@ -416,11 +428,13 @@ func (app *App) Shutdown() {
 }
 
 // Error creates a new error with a code, message and metadata
+// 使用代码、消息和元数据创建一个新的错误
 func Error(err error, code string, metadata ...map[string]string) *errors.Error {
 	return errors.NewError(err, code, metadata...)
 }
 
 // GetSessionFromCtx retrieves a session from a given context
+// 从给定的上下文中检索会话
 func (app *App) GetSessionFromCtx(ctx context.Context) session.Session {
 	sessionVal := ctx.Value(constants.SessionCtxKey)
 	if sessionVal == nil {
@@ -431,6 +445,7 @@ func (app *App) GetSessionFromCtx(ctx context.Context) session.Session {
 }
 
 // GetDefaultLoggerFromCtx returns the default logger from the given context
+// 从给定上下文返回默认记录器
 func GetDefaultLoggerFromCtx(ctx context.Context) logging.Logger {
 	l := ctx.Value(constants.LoggerCtxKey)
 	if l == nil {
@@ -443,6 +458,9 @@ func GetDefaultLoggerFromCtx(ctx context.Context) logging.Logger {
 // AddMetricTagsToPropagateCtx adds a key and metric tags that will
 // be propagated through RPC calls. Use the same tags that are at
 // 'pitaya.metrics.additionalTags' config
+// AddMetricTagsToPropagateCtx添加一个键和度量标记
+//通过RPC调用传播。使用与at相同的标签
+// pitaya.metrics。additionalTags的配置
 func AddMetricTagsToPropagateCtx(
 	ctx context.Context,
 	tags map[string]string,
@@ -451,22 +469,27 @@ func AddMetricTagsToPropagateCtx(
 }
 
 // AddToPropagateCtx adds a key and value that will be propagated through RPC calls
+// 添加将通过RPC调用传播的键和值
 func AddToPropagateCtx(ctx context.Context, key string, val interface{}) context.Context {
 	return pcontext.AddToPropagateCtx(ctx, key, val)
 }
 
 // GetFromPropagateCtx adds a key and value that came through RPC calls
+// 添加一个通过RPC调用的键和值
 func GetFromPropagateCtx(ctx context.Context, key string) interface{} {
 	return pcontext.GetFromPropagateCtx(ctx, key)
 }
 
 // ExtractSpan retrieves an opentracing span context from the given context
 // The span context can be received directly or via an RPC call
+//从给定的上下文中检索一个opentracing span上下文
+//可以直接接收span上下文，也可以通过RPC调用接收
 func ExtractSpan(ctx context.Context) (opentracing.SpanContext, error) {
 	return tracing.ExtractSpan(ctx)
 }
 
 // Documentation returns handler and remotes documentacion
+//文档返回handler和远程documentacion
 func (app *App) Documentation(getPtrNames bool) (map[string]interface{}, error) {
 	handlerDocs, err := app.handlerService.Docs(getPtrNames)
 	if err != nil {
@@ -484,12 +507,9 @@ func (app *App) Documentation(getPtrNames bool) (map[string]interface{}, error) 
 
 // AddGRPCInfoToMetadata adds host, external host and
 // port into metadata
-func AddGRPCInfoToMetadata(
-	metadata map[string]string,
-	region string,
-	host, port string,
-	externalHost, externalPort string,
-) map[string]string {
+// Add GRPCInfo To Metadata 添加主机、外部主机和
+//导入元数据
+func AddGRPCInfoToMetadata(metadata map[string]string,region string, host, port string, externalHost, externalPort string, ) map[string]string {
 	metadata[constants.GRPCHostKey] = host
 	metadata[constants.GRPCPortKey] = port
 	metadata[constants.GRPCExternalHostKey] = externalHost
@@ -499,16 +519,19 @@ func AddGRPCInfoToMetadata(
 }
 
 // Descriptor returns the protobuf message descriptor for a given message name
+// 返回给定消息名的protobuf消息描述符
 func Descriptor(protoName string) ([]byte, error) {
 	return docgenerator.ProtoDescriptors(protoName)
 }
 
 // StartWorker configures, starts and returns pitaya worker
+//StartWorker配置、启动和返回火龙果worker
 func (app *App) StartWorker() {
 	app.worker.Start()
 }
 
 // RegisterRPCJob registers rpc job to execute jobs with retries
+//注册rpcjob
 func (app *App) RegisterRPCJob(rpcJob worker.RPCJob) error {
 	err := app.worker.RegisterRPCJob(rpcJob)
 	return err
