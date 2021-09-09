@@ -216,6 +216,12 @@ func (builder *Builder) AddAcceptor(ac acceptor.Acceptor) {
 
 // Build returns a valid App instance
 // 返回一个有效的app实例
+// 创建handlerPool
+// 设置路由 router
+// 创建remotserver 根据是否standalong
+// 创建代理工厂
+// 创建handlerservice 服务
+
 func (builder *Builder) Build() Pitaya {
 	handlerPool := service.NewHandlerPool()
 	var remoteService *service.RemoteService
@@ -272,22 +278,22 @@ func (builder *Builder) Build() Pitaya {
 	)
 
 	return NewApp(
-		builder.ServerMode,
-		builder.Serializer,
-		builder.acceptors,
-		builder.DieChan,
-		builder.Router,
-		builder.Server,
-		builder.RPCClient,
-		builder.RPCServer,
-		builder.Worker,
-		builder.ServiceDiscovery,
-		remoteService,
-		handlerService,
-		builder.Groups,
-		builder.SessionPool,
-		builder.MetricsReporters,
-		builder.Config.Pitaya,
+		builder.ServerMode,       //模式
+		builder.Serializer,       //序列化器
+		builder.acceptors,        //接收器
+		builder.DieChan,          //通道
+		builder.Router,           //路由
+		builder.Server,           //服务
+		builder.RPCClient,        //rpc客户端
+		builder.RPCServer,        //rpc服务端
+		builder.Worker,           //worker
+		builder.ServiceDiscovery, //服务发现
+		remoteService,            //远程服务
+		handlerService,           //句柄服务
+		builder.Groups,           //组
+		builder.SessionPool,      //会话对象池
+		builder.MetricsReporters, //周期调用
+		builder.Config.Pitaya,    //pitaya配置
 	)
 }
 
@@ -297,10 +303,12 @@ func NewDefaultApp(isFrontend bool, serverType string, serverMode ServerMode, se
 	builder := NewDefaultBuilder(isFrontend, serverType, serverMode, serverMetadata, config)
 	return builder.Build()
 }
+
 //配置默认管线
 func configureDefaultPipelines(handlerHooks *pipeline.HandlerHooks) {
 	handlerHooks.BeforeHandler.PushBack(defaultpipelines.StructValidatorInstance.Validate)
 }
+
 // 添加默认普罗米修斯
 func addDefaultPrometheus(config config.PrometheusConfig, customMetrics models.CustomMetricsSpec, reporters []metrics.Reporter, serverType string) []metrics.Reporter {
 	prometheus, err := CreatePrometheusReporter(serverType, config, customMetrics)
@@ -311,6 +319,7 @@ func addDefaultPrometheus(config config.PrometheusConfig, customMetrics models.C
 	}
 	return reporters
 }
+
 // 添加一个默认的规则
 func addDefaultStatsd(config config.StatsdConfig, reporters []metrics.Reporter, serverType string) []metrics.Reporter {
 	statsd, err := CreateStatsdReporter(serverType, config)
