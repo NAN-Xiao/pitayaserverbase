@@ -78,6 +78,7 @@ func (t *tcpPlayerConn) GetNextMessage() (b []byte, err error) {
 }
 
 // NewTCPAcceptor creates a new instance of tcp acceptor
+// 端口号 证书
 func NewTCPAcceptor(addr string, certs ...string) *TCPAcceptor {
 	keyFile := ""
 	certFile := ""
@@ -98,6 +99,7 @@ func NewTCPAcceptor(addr string, certs ...string) *TCPAcceptor {
 }
 
 // GetAddr returns the addr the acceptor will listen on
+// 返回监听端口
 func (a *TCPAcceptor) GetAddr() string {
 	if a.listener != nil {
 		return a.listener.Addr().String()
@@ -106,11 +108,13 @@ func (a *TCPAcceptor) GetAddr() string {
 }
 
 // GetConnChan gets a connection channel
+// 返回chan
 func (a *TCPAcceptor) GetConnChan() chan PlayerConn {
 	return a.connChan
 }
 
 // Stop stops the acceptor
+// 停止监听
 func (a *TCPAcceptor) Stop() {
 	a.running = false
 	a.listener.Close()
@@ -138,6 +142,7 @@ func (a *TCPAcceptor) ListenAndServe() {
 }
 
 // ListenAndServeTLS listens using tls
+// 监听使用tls安全套接字协议
 func (a *TCPAcceptor) ListenAndServeTLS(cert, key string) {
 	crt, err := tls.LoadX509KeyPair(cert, key)
 	if err != nil {
@@ -154,7 +159,8 @@ func (a *TCPAcceptor) ListenAndServeTLS(cert, key string) {
 	a.running = true
 	a.serve()
 }
-
+//开启服务
+// 放入chan吧tcpplayconn
 func (a *TCPAcceptor) serve() {
 	defer a.Stop()
 	for a.running {
