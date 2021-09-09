@@ -32,33 +32,40 @@ import (
 )
 
 // TCPAcceptor struct
+// tcp的接收器 监听本地端口
+// Acceptor代表一个服务端端口进程，接收客户端连接，并用一个内部Chan来维护这些连接对象
 type TCPAcceptor struct {
 	addr     string
 	connChan chan PlayerConn
-	listener net.Listener
+	listener net.Listener //
 	running  bool
 	certFile string
 	keyFile  string
 }
-
+// tcp 的player连接
 type tcpPlayerConn struct {
 	net.Conn
 }
 
 // GetNextMessage reads the next message available in the stream
+// 获取下一个信息
 func (t *tcpPlayerConn) GetNextMessage() (b []byte, err error) {
+	//读取消息 从playerconn HeadLength 默认是4字节
 	header, err := ioutil.ReadAll(io.LimitReader(t.Conn, codec.HeadLength))
 	if err != nil {
 		return nil, err
 	}
 	// if the header has no data, we can consider it as a closed connection
+	// 如果头文件没有数据，我们可以将其视为一个关闭连接
 	if len(header) == 0 {
 		return nil, constants.ErrConnectionClosed
 	}
+	//解析头文件 返回消息体大小
 	msgSize, _, err := codec.ParseHeader(header)
 	if err != nil {
 		return nil, err
 	}
+	//根据上面的消息体大小读取消息体
 	msgData, err := ioutil.ReadAll(io.LimitReader(t.Conn, int64(msgSize)))
 	if err != nil {
 		return nil, err
@@ -66,6 +73,7 @@ func (t *tcpPlayerConn) GetNextMessage() (b []byte, err error) {
 	if len(msgData) < msgSize {
 		return nil, constants.ErrReceivedMsgSmallerThanExpected
 	}
+	//返回消息包的btes
 	return append(header, msgData...), nil
 }
 

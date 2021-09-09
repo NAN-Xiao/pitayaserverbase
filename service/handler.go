@@ -178,6 +178,7 @@ func (h *HandlerService) Handle(conn acceptor.PlayerConn) {
 		logger.Log.Debugf("Session read goroutine exit, SessionID=%d, UID=%s", a.GetSession().ID(), a.GetSession().UID())
 	}()
 
+	//获取消息并解包并由process处理消息
 	for {
 		msg, err := conn.GetNextMessage()
 
@@ -212,7 +213,7 @@ func (h *HandlerService) Handle(conn acceptor.PlayerConn) {
 
 func (h *HandlerService) processPacket(a agent.Agent, p *packet.Packet) error {
 	switch p.Type {
-	case packet.Handshake:
+	case packet.Handshake://握手
 		logger.Log.Debug("Received handshake packet")
 		if err := a.SendHandshakeResponse(); err != nil {
 			logger.Log.Errorf("Error sending handshake response: %s", err.Error())

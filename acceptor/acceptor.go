@@ -31,7 +31,7 @@ type PlayerConn interface {
 // Acceptor type interface
 type Acceptor interface {
 	ListenAndServe() //监听服务
-	Stop()
-	GetAddr() string
-	GetConnChan() chan PlayerConn
+	Stop() //停止
+	GetAddr() string //获取地址
+	GetConnChan() chan PlayerConn //获取plaer的conn chan
 }

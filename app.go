@@ -130,7 +130,7 @@ type Pitaya interface {
 // App is the base app struct
 type App struct {
 	//接收器
-	acceptors        []acceptor.Acceptor
+	acceptors        []acceptor.Acceptor //接收器 应该就是本地监听端口
 	config           config.PitayaConfig
 	debug            bool
 	dieChan          chan bool

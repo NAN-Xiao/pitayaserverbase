@@ -24,6 +24,8 @@ import (
 type (
 	// Room represents a component that contains a bundle of room related handler
 	// like Join/Message
+	// Room表示包含一组与Room相关的处理程序的组件
+  	// /加入/信息
 	Room struct {
 		component.Base
 		timer *timer.Timer
@@ -31,22 +33,26 @@ type (
 	}
 
 	// UserMessage represents a message that user sent
+	// 表示用户发送的消息
 	UserMessage struct {
 		Name    string `json:"name"`
 		Content string `json:"content"`
 	}
 
 	// NewUser message will be received when new user join room
+	// 当新用户加入房间时，将收到NewUser消息
 	NewUser struct {
 		Content string `json:"content"`
 	}
 
 	// AllMembers contains all members uid
+	// AllMembers包含所有成员uid
 	AllMembers struct {
 		Members []string `json:"members"`
 	}
 
 	// JoinResponse represents the result of joining room
+	// JoinResponse表示加入房间的结果
 	JoinResponse struct {
 		Code   int    `json:"code"`
 		Result string `json:"result"`
@@ -62,7 +68,7 @@ func NewRoom(app pitaya.Pitaya) *Room {
 }
 
 // AfterInit component lifetime callback
-// 初始化完成后 组件的生命周期回调
+// 测试 初始化完成后 组件的生命周期回调
 func (r *Room) AfterInit() {
 	r.timer = pitaya.NewTimer(time.Minute, func() {
 		count, err := r.app.GroupCountMembers(context.Background(), "room")

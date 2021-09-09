@@ -21,9 +21,10 @@
 package component
 
 // Component is the interface that represent a component.
+// 组件的借口
 type Component interface {
-	Init()
-	AfterInit()
-	BeforeShutdown()
-	Shutdown()
+	Init()//初始化
+	AfterInit()//初始化之后
+	BeforeShutdown()//关闭之前
+	Shutdown()//关闭
 }

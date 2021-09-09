@@ -64,20 +64,20 @@ type (
 		sessionPool        session.SessionPool
 		appDieChan         chan bool         // app die channel
 		chDie              chan struct{}     // wait for close
-		chSend             chan pendingWrite // push message queue
-		chStopHeartbeat    chan struct{}     // stop heartbeats
-		chStopWrite        chan struct{}     // stop writing messages
+		chSend             chan pendingWrite // push message queue 消息发送队列
+		chStopHeartbeat    chan struct{}     // stop heartbeats 停止心跳
+		chStopWrite        chan struct{}     // stop writing messages 停止写消息
 		closeMutex         sync.Mutex
-		conn               net.Conn            // low-level conn fd
-		decoder            codec.PacketDecoder // binary decoder
-		encoder            codec.PacketEncoder // binary encoder
-		heartbeatTimeout   time.Duration
-		lastAt             int64 // last heartbeat unix time stamp
-		messageEncoder     message.Encoder
-		messagesBufferSize int // size of the pending messages buffer
+		conn               net.Conn            // low-level conn fd 低级的连接
+		decoder            codec.PacketDecoder // binary decoder 反序列化成消息对象
+		encoder            codec.PacketEncoder // binary encoder 序列化
+		heartbeatTimeout   time.Duration		//心跳超时时间
+		lastAt             int64 // last heartbeat unix time stamp 时间戳
+		messageEncoder     message.Encoder  //消息压栈
+		messagesBufferSize int // size of the pending messages buffer //消息体大小
 		metricsReporters   []metrics.Reporter
-		serializer         serialize.Serializer // message serializer
-		state              int32                // current agent state
+		serializer         serialize.Serializer // message serializer 消息序列化器
+		state              int32                // current agent state 状态
 	}
 
 	pendingMessage struct {
@@ -272,6 +272,7 @@ func (a *agentImpl) send(pendingMsg pendingMessage) (err error) {
 	}
 
 	// chSend is never closed so we need this to don't block if agent is already closed
+	// chSend从来没有关闭，所以我们需要这个不阻塞，如果代理已经关闭
 	select {
 	case a.chSend <- pWrite:
 	case <-a.chDie:

@@ -165,6 +165,7 @@ func (mr *MockPlayerConnMockRecorder) Write(arg0 interface{}) *gomock.Call {
 }
 
 // MockAcceptor is a mock of Acceptor interface
+// 虚拟的接收器
 type MockAcceptor struct {
 	ctrl     *gomock.Controller
 	recorder *MockAcceptorMockRecorder

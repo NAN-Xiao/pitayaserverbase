@@ -3,6 +3,7 @@ package codec
 import "github.com/topfreegames/pitaya/v2/conn/packet"
 
 // ParseHeader parses a packet header and returns its dataLen and packetType or an error
+// 解析包头并返回它的dataLen和packetType或一个错误
 func ParseHeader(header []byte) (int, packet.Type, error) {
 	if len(header) != HeadLength {
 		return 0, 0x00, packet.ErrInvalidPomeloHeader
