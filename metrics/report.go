@@ -81,6 +81,7 @@ func ReportNumberOfConnectedClients(reporters []Reporter, number int64) {
 }
 
 // ReportSysMetrics reports sys metrics
+// 发送系统报告
 func ReportSysMetrics(reporters []Reporter, period time.Duration) {
 	for {
 		for _, r := range reporters {

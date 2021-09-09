@@ -11,7 +11,10 @@ import (
 )
 
 // Report sends periodic of worker reports
-// 定时发送works的报告
+// 定时发送works的报告 每隔 period单位发送一次
+// reportJobsRetry
+// reportQueueSizes
+// reportJobsTotal
 func Report(reporters []metrics.Reporter, period time.Duration) {
 	for {
 		time.Sleep(period)

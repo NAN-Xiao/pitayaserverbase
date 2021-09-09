@@ -35,7 +35,7 @@ type PitayaConfig struct {
 		Unique bool
 	}
 	Metrics struct {
-		Period time.Duration
+		Period time.Duration //定时的时间单位
 	}
 }
 

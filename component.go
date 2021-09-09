@@ -41,29 +41,35 @@ func (app *App) Register(c component.Component, options ...component.Option) {
 func (app *App) RegisterRemote(c component.Component, options ...component.Option) {
 	app.remoteComp = append(app.remoteComp, regComp{c, options})
 }
+
 //初始化Components[组件]
 func (app *App) startupComponents() {
 	// handler component initialize hooks
+	// 处理程序组件初始化钩子
 	for _, c := range app.handlerComp {
 		c.comp.Init()
 	}
 
 	// handler component after initialize hooks
+	// 初始化钩子后的处理程序组件
 	for _, c := range app.handlerComp {
 		c.comp.AfterInit()
 	}
 
 	// remote component initialize hooks
+	// 远程组件初始化钩子
 	for _, c := range app.remoteComp {
 		c.comp.Init()
 	}
 
 	// remote component after initialize hooks
+	// 初始化钩子后的远程组件
 	for _, c := range app.remoteComp {
 		c.comp.AfterInit()
 	}
 
 	// register all components
+	// 注册所有组件
 	for _, c := range app.handlerComp {
 		if err := app.handlerService.Register(c.comp, c.opts); err != nil {
 			logger.Log.Errorf("Failed to register handler: %s", err.Error())
@@ -71,6 +77,7 @@ func (app *App) startupComponents() {
 	}
 
 	// register all remote components
+	// 注册所有远程组件
 	for _, c := range app.remoteComp {
 		if app.remoteService == nil {
 			logger.Log.Warn("registered a remote component but remoteService is not running! skipping...")

@@ -139,7 +139,7 @@ type App struct {
 	router           *router.Router
 	rpcClient        cluster.RPCClient
 	rpcServer        cluster.RPCServer
-	metricsReporters []metrics.Reporter
+	metricsReporters []metrics.Reporter //周期报告
 	running          bool
 	serializer       serialize.Serializer
 	server           *cluster.Server
@@ -276,6 +276,7 @@ func (app *App) IsRunning() bool {
 func SetLogger(l logging.Logger) {
 	logger.Log = l
 }
+
 // 初始化远程系统
 func (app *App) initSysRemotes() {
 	sys := remote.NewSys(app.sessionPool)
@@ -284,7 +285,8 @@ func (app *App) initSysRemotes() {
 		component.WithNameFunc(strings.ToLower),
 	)
 }
-// 周期性的指标
+
+// 定时数据
 func (app *App) periodicMetrics() {
 	period := app.config.Metrics.Period
 	go metrics.ReportSysMetrics(app.metricsReporters, period)
@@ -323,7 +325,7 @@ func (app *App) Start() {
 			logger.Log.Fatal("failed to register service discovery module: %s", err.Error())
 		}
 	}
-	//定时数据
+	//发送定时数据
 	app.periodicMetrics()
 	//开始循环监听
 	app.listen()
@@ -334,6 +336,7 @@ func (app *App) Start() {
 	}()
 
 	sg := make(chan os.Signal)
+	//通知 广播
 	signal.Notify(sg, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL, syscall.SIGTERM)
 
 	// stop server
@@ -353,6 +356,7 @@ func (app *App) Start() {
 	//关闭所有组件
 	app.shutdownComponents()
 }
+
 //循环监听
 func (app *App) listen() {
 	app.startupComponents()
@@ -360,7 +364,7 @@ func (app *App) listen() {
 	// by SetTimerPrecision
 	//创建全局定时器实例，通过SetTimerPrecision 可以自定义定时器精度
 	timer.GlobalTicker = time.NewTicker(timer.Precision)
- 	//log
+	//log
 	logger.Log.Infof("starting server %s:%s", app.server.Type, app.server.ID)
 	//派发 handler
 	for i := 0; i < app.config.Concurrency.Handler.Dispatch; i++ {
@@ -405,7 +409,7 @@ func (app *App) SetDictionary(dict map[string]uint16) error {
 
 // AddRoute adds a routing function to a server type
 // 向服务器类型添加路由功能
-func (app *App) AddRoute(serverType string, routingFunction router.RoutingFunc, ) error {
+func (app *App) AddRoute(serverType string, routingFunction router.RoutingFunc) error {
 	if app.router != nil {
 		//如果app正在运行返回错误码
 		if app.running {
@@ -512,7 +516,7 @@ func (app *App) Documentation(getPtrNames bool) (map[string]interface{}, error) 
 // port into metadata
 // Add GRPCInfo To Metadata 添加主机、外部主机和
 //导入元数据
-func AddGRPCInfoToMetadata(metadata map[string]string,region string, host, port string, externalHost, externalPort string, ) map[string]string {
+func AddGRPCInfoToMetadata(metadata map[string]string, region string, host, port string, externalHost, externalPort string) map[string]string {
 	metadata[constants.GRPCHostKey] = host
 	metadata[constants.GRPCPortKey] = port
 	metadata[constants.GRPCExternalHostKey] = externalHost
