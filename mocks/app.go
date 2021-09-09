@@ -268,6 +268,7 @@ func (m *MockPitaya) GroupCreate(arg0 context.Context, arg1 string) error {
 }
 
 // GroupCreate indicates an expected call of GroupCreate
+// 表示期望的GroupCreate调用
 func (mr *MockPitayaMockRecorder) GroupCreate(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GroupCreate", reflect.TypeOf((*MockPitaya)(nil).GroupCreate), arg0, arg1)
@@ -411,6 +412,7 @@ func (m *MockPitaya) Register(arg0 component.Component, arg1 ...component.Option
 }
 
 // Register indicates an expected call of Register
+// 注册room
 func (mr *MockPitayaMockRecorder) Register(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0}, arg1...)

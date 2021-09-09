@@ -54,6 +54,7 @@ type (
 )
 
 // NewRoom returns a Handler Base implementation
+// 返回一个基础的handler的实现
 func NewRoom(app pitaya.Pitaya) *Room {
 	return &Room{
 		app: app,
@@ -61,6 +62,7 @@ func NewRoom(app pitaya.Pitaya) *Room {
 }
 
 // AfterInit component lifetime callback
+// 初始化完成后 组件的生命周期回调
 func (r *Room) AfterInit() {
 	r.timer = pitaya.NewTimer(time.Minute, func() {
 		count, err := r.app.GroupCountMembers(context.Background(), "room")
@@ -69,6 +71,7 @@ func (r *Room) AfterInit() {
 }
 
 // Join room
+// 加入房间
 func (r *Room) Join(ctx context.Context, msg []byte) (*JoinResponse, error) {
 	s := r.app.GetSessionFromCtx(ctx)
 	fakeUID := s.ID()                              // just use s.ID as uid !!!
@@ -97,6 +100,7 @@ func (r *Room) Join(ctx context.Context, msg []byte) (*JoinResponse, error) {
 }
 
 // Message sync last message to all members
+// 同步最后一条消息给所有成员
 func (r *Room) Message(ctx context.Context, msg *UserMessage) {
 	err := r.app.GroupBroadcast(ctx, "chat", "room", "onMessage", msg)
 	if err != nil {
@@ -107,15 +111,21 @@ func (r *Room) Message(ctx context.Context, msg *UserMessage) {
 var app pitaya.Pitaya
 
 func main() {
+	//返回building conf
 	conf := configApp()
+	//返回builder
 	builder := pitaya.NewDefaultBuilder(true, "chat", pitaya.Cluster, map[string]string{}, *conf)
+	//添加一个接收器
 	builder.AddAcceptor(acceptor.NewWSAcceptor(":3250"))
+	//得到一个组的实例
 	builder.Groups = groups.NewMemoryGroupService(*config.NewDefaultMemoryGroupConfig())
+	//builder来创建app
 	app = builder.Build()
-
+	//延迟关闭app
 	defer app.Shutdown()
-
+	//创建组
 	err := app.GroupCreate(context.Background(), "room")
+
 	if err != nil {
 		panic(err)
 	}
@@ -123,6 +133,7 @@ func main() {
 	// rewrite component and handler name
 	//重写组件和处理程序名称
 	room := NewRoom(app)
+	//注册
 	app.Register(room,
 		component.WithName("room"),
 		component.WithNameFunc(strings.ToLower),
@@ -131,17 +142,18 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web"))))
-
+	//http监听服务
 	go http.ListenAndServe(":3251", nil)
-
+	//启动app
 	app.Start()
 }
 
+//配置app
 func configApp() *config.BuilderConfig {
 	conf := config.NewDefaultBuilderConfig()
 	conf.Pitaya.Buffer.Handler.LocalProcess = 15
-	conf.Pitaya.Heartbeat.Interval = time.Duration(15 * time.Second)
+	conf.Pitaya.Heartbeat.Interval = time.Duration(15 * time.Second) //心跳时间
 	conf.Pitaya.Buffer.Agent.Messages = 32
-	conf.Pitaya.Handler.Messages.Compression = false
+	conf.Pitaya.Handler.Messages.Compression = false //压缩消息
 	return conf
 }

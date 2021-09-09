@@ -27,6 +27,7 @@ type MemoryGroup struct {
 }
 
 // NewMemoryGroupService returns a new group instance
+// 返回一个新的组的实例
 func NewMemoryGroupService(config config.MemoryGroupConfig) *MemoryGroupService {
 	memoryOnce.Do(func() {
 		memoryGroups = make(map[string]*MemoryGroup)

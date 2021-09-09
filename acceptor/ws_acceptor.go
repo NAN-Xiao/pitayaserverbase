@@ -44,6 +44,7 @@ type WSAcceptor struct {
 }
 
 // NewWSAcceptor returns a new instance of WSAcceptor
+// 返回一个新的WebServer接收器实例
 func NewWSAcceptor(addr string, certs ...string) *WSAcceptor {
 	keyFile := ""
 	certFile := ""
