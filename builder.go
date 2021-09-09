@@ -88,6 +88,8 @@ func NewBuilderWithConfigs(
 
 // NewDefaultBuilder return a builder instance with default dependency instances for a pitaya App,
 // with default configs
+// 返回一个默认的building
+// 可以根据默认的配置创建一个基本的app实例
 func NewDefaultBuilder(isFrontend bool, serverType string, serverMode ServerMode, serverMetadata map[string]string, builderConfig config.BuilderConfig) *Builder {
 	customMetrics := config.NewDefaultCustomMetricsSpec()
 	prometheusConfig := config.NewDefaultPrometheusConfig()
@@ -118,20 +120,21 @@ func NewDefaultBuilder(isFrontend bool, serverType string, serverMode ServerMode
 
 // NewBuilder return a builder instance with default dependency instances for a pitaya App,
 // with configs explicitly defined
-func NewBuilder(isFrontend bool,
-	serverType string,
-	serverMode ServerMode,
-	serverMetadata map[string]string,
-	config config.BuilderConfig,
-	customMetrics models.CustomMetricsSpec,
-	prometheusConfig config.PrometheusConfig,
-	statsdConfig config.StatsdConfig,
-	etcdSDConfig config.EtcdServiceDiscoveryConfig,
-	natsRPCServerConfig config.NatsRPCServerConfig,
-	natsRPCClientConfig config.NatsRPCClientConfig,
-	workerConfig config.WorkerConfig,
-	enqueueOpts config.EnqueueOpts,
-	groupServiceConfig config.MemoryGroupConfig,
+// 根据基本的以来关系返回一个构建器
+func NewBuilder(isFrontend bool, //是否前台服务
+	serverType string, //服务器类型
+	serverMode ServerMode, //服务模式
+	serverMetadata map[string]string, //元数据
+	config config.BuilderConfig, //构建器配置
+	customMetrics models.CustomMetricsSpec, //自定义数据规范
+	prometheusConfig config.PrometheusConfig, //普罗米修斯配置
+	statsdConfig config.StatsdConfig, //启动配置
+	etcdSDConfig config.EtcdServiceDiscoveryConfig, //服务器发现配置
+	natsRPCServerConfig config.NatsRPCServerConfig, //远程rpc服务
+	natsRPCClientConfig config.NatsRPCClientConfig, //远程rpc客户端
+	workerConfig config.WorkerConfig, //worker配置
+	enqueueOpts config.EnqueueOpts, //配置队列设置
+	groupServiceConfig config.MemoryGroupConfig, //存储配置
 ) *Builder {
 	server := cluster.NewServer(uuid.New().String(), serverType, isFrontend, serverMetadata)
 	dieChan := make(chan bool)
@@ -184,24 +187,24 @@ func NewBuilder(isFrontend bool,
 	}
 
 	return &Builder{
-		acceptors:        []acceptor.Acceptor{},
-		Config:           config,
-		DieChan:          dieChan,
-		PacketDecoder:    codec.NewPomeloPacketDecoder(),
-		PacketEncoder:    codec.NewPomeloPacketEncoder(),
-		MessageEncoder:   message.NewMessagesEncoder(config.Pitaya.Handler.Messages.Compression),
-		Serializer:       json.NewSerializer(),
-		Router:           router.New(),
-		RPCClient:        rpcClient,
-		RPCServer:        rpcServer,
-		MetricsReporters: metricsReporters,
-		Server:           server,
-		ServerMode:       serverMode,
-		Groups:           gsi,
-		HandlerHooks:     handlerHooks,
-		ServiceDiscovery: serviceDiscovery,
-		SessionPool:      sessionPool,
-		Worker:           worker,
+		acceptors:        []acceptor.Acceptor{},                                                  //接收器组
+		Config:           config,                                                                 //配置
+		DieChan:          dieChan,                                                                //
+		PacketDecoder:    codec.NewPomeloPacketDecoder(),                                         //反序列化器
+		PacketEncoder:    codec.NewPomeloPacketEncoder(),                                         //序列化器
+		MessageEncoder:   message.NewMessagesEncoder(config.Pitaya.Handler.Messages.Compression), //消息序列化器
+		Serializer:       json.NewSerializer(),                                                   //json序列化器
+		Router:           router.New(),                                                           //路由
+		RPCClient:        rpcClient,                                                              //远程rpc客户端
+		RPCServer:        rpcServer,                                                              //远程rpc服务器
+		MetricsReporters: metricsReporters,                                                       //周期调用
+		Server:           server,                                                                 //服务器
+		ServerMode:       serverMode,                                                             //服务器模式
+		Groups:           gsi,                                                                    //组
+		HandlerHooks:     handlerHooks,                                                           //句柄狗子
+		ServiceDiscovery: serviceDiscovery,                                                       //服务器发现
+		SessionPool:      sessionPool,                                                            //会话对象池
+		Worker:           worker,                                                                 //workder
 	}
 }
 
