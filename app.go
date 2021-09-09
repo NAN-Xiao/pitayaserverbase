@@ -372,6 +372,7 @@ func (app *App) listen() {
 	}
 	for _, acc := range app.acceptors {
 		a := acc
+		//循环处理消息
 		go func() {
 			for conn := range a.GetConnChan() {
 				go app.handlerService.Handle(conn)
@@ -384,7 +385,7 @@ func (app *App) listen() {
 		//log 监听从addr的接收器
 		logger.Log.Infof("listening with acceptor %s on addr %s", reflect.TypeOf(a), a.GetAddr())
 	}
-	//如果集群并且服务器在前并且回话是独立的 创建一个独立回话 添加给远程监听 并注册回话的模块
+	//如果集群，并且服务器在前并且回话是独立的 创建一个独立回话 添加给远程监听 并注册回话的模块
 	if app.serverMode == Cluster && app.server.Frontend && app.config.Session.Unique {
 		unique := mods.NewUniqueSession(app.server, app.rpcServer, app.rpcClient, app.sessionPool)
 		app.remoteService.AddRemoteBindingListener(unique)

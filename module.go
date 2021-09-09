@@ -86,6 +86,7 @@ func (app *App) alreadyRegistered(name string) error {
 }
 
 // startModules starts all modules in order
+// 按顺序启动所有模块
 func (app *App) startModules() {
 	logger.Log.Debug("initializing all modules")
 	for _, modWrapper := range app.modulesArr {
