@@ -60,33 +60,33 @@ const handlerType = "handler"
 
 type (
 	agentImpl struct {
-		Session            session.Session // session
-		sessionPool        session.SessionPool
-		appDieChan         chan bool         // app die channel
-		chDie              chan struct{}     // wait for close
-		chSend             chan pendingWrite // push message queue 消息发送队列
-		chStopHeartbeat    chan struct{}     // stop heartbeats 停止心跳
-		chStopWrite        chan struct{}     // stop writing messages 停止写消息
-		closeMutex         sync.Mutex
-		conn               net.Conn            // low-level conn fd 低级的连接
-		decoder            codec.PacketDecoder // binary decoder 反序列化成消息对象
-		encoder            codec.PacketEncoder // binary encoder 序列化
-		heartbeatTimeout   time.Duration		//心跳超时时间
-		lastAt             int64 // last heartbeat unix time stamp 时间戳
-		messageEncoder     message.Encoder  //消息压栈
-		messagesBufferSize int // size of the pending messages buffer //消息体大小
-		metricsReporters   []metrics.Reporter
+		Session            session.Session      // session
+		sessionPool        session.SessionPool  //
+		appDieChan         chan bool            // app die channel
+		chDie              chan struct{}        // wait for close
+		chSend             chan pendingWrite    // push message queue 消息发送队列
+		chStopHeartbeat    chan struct{}        // stop heartbeats 停止心跳
+		chStopWrite        chan struct{}        // stop writing messages 停止写消息
+		closeMutex         sync.Mutex           //
+		conn               net.Conn             // low-level conn fd 低级的连接
+		decoder            codec.PacketDecoder  // binary decoder 反序列化成消息对象
+		encoder            codec.PacketEncoder  // binary encoder 序列化
+		heartbeatTimeout   time.Duration        //心跳超时时间
+		lastAt             int64                // last heartbeat unix time stamp 时间戳
+		messageEncoder     message.Encoder      //消息压栈
+		messagesBufferSize int                  // size of the pending messages buffer //消息体大小
+		metricsReporters   []metrics.Reporter   //
 		serializer         serialize.Serializer // message serializer 消息序列化器
 		state              int32                // current agent state 状态
 	}
 
 	pendingMessage struct {
-		ctx     context.Context
-		typ     message.Type // message type
-		route   string       // message route (push)
-		mid     uint         // response message id (response)
-		payload interface{}  // payload
-		err     bool         // if its an error message
+		ctx     context.Context //上下文
+		typ     message.Type    // message type 消息类型
+		route   string          // message route (push) 路由
+		mid     uint            // response message id (response) //响应id
+		payload interface{}     // payload 有效负载
+		err     bool            // if its an error message //错误消息
 	}
 
 	pendingWrite struct {
@@ -96,6 +96,7 @@ type (
 	}
 
 	// Agent corresponds to a user and is used for storing raw Conn information
+	// 原始用户 对应于一个用户，用于存储原始Conn信息
 	Agent interface {
 		GetSession() session.Session
 		Push(route string, v interface{}) error
@@ -115,10 +116,11 @@ type (
 	}
 
 	// AgentFactory factory for creating Agent instances
+	// 创建客户端代理agent的工厂类
 	AgentFactory interface {
 		CreateAgent(conn net.Conn) Agent
 	}
-
+	// agent工厂类的实现
 	agentFactoryImpl struct {
 		sessionPool        session.SessionPool
 		appDieChan         chan bool           // app die channel
@@ -133,6 +135,7 @@ type (
 )
 
 // NewAgentFactory ctor
+// 构造函数 创建工厂类
 func NewAgentFactory(
 	appDieChan chan bool,
 	decoder codec.PacketDecoder,
@@ -157,12 +160,14 @@ func NewAgentFactory(
 	}
 }
 
-// CreateAgent returns a new agent
+// CreateAgent returns a new agent、
+// 工厂类创建代理
 func (f *agentFactoryImpl) CreateAgent(conn net.Conn) Agent {
 	return newAgent(conn, f.decoder, f.encoder, f.serializer, f.heartbeatTimeout, f.messagesBufferSize, f.appDieChan, f.messageEncoder, f.metricsReporters, f.sessionPool)
 }
 
 // NewAgent create new agent instance
+// 创建新代理agent
 func newAgent(
 	conn net.Conn,
 	packetDecoder codec.PacketDecoder,
@@ -202,12 +207,14 @@ func newAgent(
 	}
 
 	// binding session
+	// 绑定会话
 	s := sessionPool.NewSession(a, true)
 	metrics.ReportNumberOfConnectedClients(metricsReporters, sessionPool.GetSessionCount())
 	a.Session = s
 	return a
 }
 
+//从pending获取消息
 func (a *agentImpl) getMessageFromPendingMessage(pm pendingMessage) (*message.Message, error) {
 	payload, err := util.SerializeOrRaw(a.serializer, pm.payload)
 	if err != nil {
@@ -218,6 +225,7 @@ func (a *agentImpl) getMessageFromPendingMessage(pm pendingMessage) (*message.Me
 	}
 
 	// construct message and encode
+	// 构造消息并且编码
 	m := &message.Message{
 		Type:  pm.typ,
 		Data:  payload,
@@ -229,6 +237,7 @@ func (a *agentImpl) getMessageFromPendingMessage(pm pendingMessage) (*message.Me
 	return m, nil
 }
 
+//打包消息
 func (a *agentImpl) packetEncodeMessage(m *message.Message) ([]byte, error) {
 	em, err := a.messageEncoder.Encode(m)
 	if err != nil {
@@ -243,6 +252,7 @@ func (a *agentImpl) packetEncodeMessage(m *message.Message) ([]byte, error) {
 	return p, nil
 }
 
+//发送pendingMsg
 func (a *agentImpl) send(pendingMsg pendingMessage) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
@@ -281,11 +291,13 @@ func (a *agentImpl) send(pendingMsg pendingMessage) (err error) {
 }
 
 // GetSession returns the agent session
+// 从agent中获取会话session
 func (a *agentImpl) GetSession() session.Session {
 	return a.Session
 }
 
 // Push implementation for NetworkEntity interface
+// 推送 实现 的网络实体 接口
 func (a *agentImpl) Push(route string, v interface{}) error {
 	if a.GetStatus() == constants.StatusClosed {
 		return errors.NewError(constants.ErrBrokenPipe, errors.ErrClientClosedRequest)
@@ -304,6 +316,7 @@ func (a *agentImpl) Push(route string, v interface{}) error {
 
 // ResponseMID implementation for NetworkEntity interface
 // Respond message to session
+// 相应messageid 从会话中
 func (a *agentImpl) ResponseMID(ctx context.Context, mid uint, v interface{}, isError ...bool) error {
 	err := false
 	if len(isError) > 0 {
@@ -331,6 +344,7 @@ func (a *agentImpl) ResponseMID(ctx context.Context, mid uint, v interface{}, is
 
 // Close closes the agent, cleans inner state and closes low-level connection.
 // Any blocked Read or Write operations will be unblocked and return errors.
+// 关闭代理 清楚状态并且关闭底层链接
 func (a *agentImpl) Close() error {
 	a.closeMutex.Lock()
 	defer a.closeMutex.Unlock()
@@ -360,6 +374,7 @@ func (a *agentImpl) Close() error {
 
 // RemoteAddr implementation for NetworkEntity interface
 // returns the remote network address.
+// 返回远程网络地址
 func (a *agentImpl) RemoteAddr() net.Addr {
 	return a.conn.RemoteAddr()
 }
@@ -370,11 +385,13 @@ func (a *agentImpl) String() string {
 }
 
 // GetStatus gets the status
+// 获取状态
 func (a *agentImpl) GetStatus() int32 {
 	return atomic.LoadInt32(&a.state)
 }
 
 // Kick sends a kick packet to a client
+// 向客户端发送一个kick包
 func (a *agentImpl) Kick(ctx context.Context) error {
 	// packet encode
 	p, err := a.encoder.Encode(packet.Kick, nil)
@@ -386,6 +403,7 @@ func (a *agentImpl) Kick(ctx context.Context) error {
 }
 
 // SetLastAt sets the last at to now
+//将最后一个设置为now
 func (a *agentImpl) SetLastAt() {
 	atomic.StoreInt64(&a.lastAt, time.Now().Unix())
 }
