@@ -28,6 +28,7 @@ import (
 )
 
 // AddToPropagateCtx adds a key and value that will be propagated through RPC calls
+// 添加将通过RPC调用传播的键和值
 func AddToPropagateCtx(ctx context.Context, key string, val interface{}) context.Context {
 	propagate := ToMap(ctx)
 	propagate[key] = val
@@ -35,6 +36,7 @@ func AddToPropagateCtx(ctx context.Context, key string, val interface{}) context
 }
 
 // GetFromPropagateCtx get a value from the propagate
+// 从propagate获得一个值
 func GetFromPropagateCtx(ctx context.Context, key string) interface{} {
 	propagate := ToMap(ctx)
 	if val, ok := propagate[key]; ok {
@@ -44,6 +46,7 @@ func GetFromPropagateCtx(ctx context.Context, key string) interface{} {
 }
 
 // ToMap returns the values that will be propagated through RPC calls in map[string]interface{} format
+// 返回将以map[string]接口{}格式通过RPC调用传播的值
 func ToMap(ctx context.Context) map[string]interface{} {
 	if ctx == nil {
 		return map[string]interface{}{}
@@ -56,11 +59,13 @@ func ToMap(ctx context.Context) map[string]interface{} {
 }
 
 // FromMap creates a new context from a map with propagated values
+// 从带有传播值的映射创建新上下文
 func FromMap(val map[string]interface{}) context.Context {
 	return context.WithValue(context.Background(), constants.PropagateCtxKey, val)
 }
 
 // Encode returns the given propagatable context encoded in binary format
+// 返回以二进制格式编码的给定可传播上下文
 func Encode(ctx context.Context) ([]byte, error) {
 	m := ToMap(ctx)
 	if len(m) > 0 {
@@ -70,6 +75,7 @@ func Encode(ctx context.Context) ([]byte, error) {
 }
 
 // Decode returns a context given a binary encoded message
+// 返回给定二进制编码消息的上下文
 func Decode(m []byte) (context.Context, error) {
 	if len(m) == 0 {
 		// TODO maybe return an error

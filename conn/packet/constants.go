@@ -23,28 +23,36 @@ package packet
 import "errors"
 
 // Type represents the network packet's type such as: handshake and so on.
+// 表示网络数据包的类型，如:握手等。
 type Type byte
 
 const (
 	_ Type = iota
 	// Handshake represents a handshake: request(client) <====> handshake response(server)
+	// 表示一次握手:request(client) <====>握手响应(server)
 	Handshake = 0x01
 
 	// HandshakeAck represents a handshake ack from client to server
+	// 表示从客户端到服务器的握手ack
 	HandshakeAck = 0x02
 
 	// Heartbeat represents a heartbeat
+	// 心跳數據包
 	Heartbeat = 0x03
 
 	// Data represents a common data packet
+	// 普通的數據包
 	Data = 0x04
 
 	// Kick represents a kick off packet
+	// 代表开球包
 	Kick = 0x05 // disconnect message from server
 )
 
 // ErrWrongPomeloPacketType represents a wrong packet type.
+// 錯誤的包類型
 var ErrWrongPomeloPacketType = errors.New("wrong packet type")
 
 // ErrInvalidPomeloHeader represents an invalid header
+// 無效的頭
 var ErrInvalidPomeloHeader = errors.New("invalid header")

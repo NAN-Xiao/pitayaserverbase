@@ -9,6 +9,7 @@ import (
 )
 
 // ProtoDescriptors returns the descriptor for a given message name or .proto file
+// 返回给定消息名称或.proto文件的描述符
 func ProtoDescriptors(protoName string) ([]byte, error) {
 	if strings.HasSuffix(protoName, ".proto") {
 		descriptor := proto.FileDescriptor(protoName)

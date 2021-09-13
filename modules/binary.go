@@ -42,6 +42,7 @@ type Binary struct {
 }
 
 // NewBinary creates a new binary module with the given path
+// 用给定的路径创建一个新的二进制模块
 func NewBinary(binPath string, args []string, gracefulShutdownInterval ...time.Duration) *Binary {
 	gracefulTime := 15 * time.Second
 	if len(gracefulShutdownInterval) > 0 {
@@ -56,11 +57,13 @@ func NewBinary(binPath string, args []string, gracefulShutdownInterval ...time.D
 }
 
 // GetExitChannel gets a channel that is closed when the binary dies
+// 获取在二进制文件终止时关闭的通道
 func (b *Binary) GetExitChannel() chan struct{} {
 	return b.exitCh
 }
 
 // Init initializes the binary
+// initializes the binary
 func (b *Binary) Init() error {
 	b.cmd = exec.Command(b.binPath, b.args...)
 	stdout, _ := b.cmd.StdoutPipe()
@@ -86,6 +89,7 @@ func (b *Binary) Init() error {
 }
 
 // Shutdown shutdowns the binary module
+// 关闭二进制模块
 func (b *Binary) Shutdown() error {
 	err := b.cmd.Process.Signal(syscall.SIGTERM)
 	if err != nil {

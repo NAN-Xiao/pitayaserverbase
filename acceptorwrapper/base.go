@@ -28,6 +28,10 @@ import (
 // Conns from acceptor.GetConnChan are processed by wrapConn and
 // forwarded to its own connChan.
 // Any new wrapper can inherit from BaseWrapper and just implement wrapConn.
+// BaseWrapper通过将接受器保存为属性来实现Wrapper。
+// 从acceptor。GetConnChan由wrapConn和
+// 转发给它自己的联络人。
+// 任何新的包装器都可以从BaseWrapper继承并实现wrapConn。
 type BaseWrapper struct {
 	acceptor.Acceptor
 	connChan chan acceptor.PlayerConn
@@ -35,6 +39,7 @@ type BaseWrapper struct {
 }
 
 // NewBaseWrapper returns an instance of BaseWrapper.
+// 返回basewrapper的實例
 func NewBaseWrapper(wrapConn func(acceptor.PlayerConn) acceptor.PlayerConn) BaseWrapper {
 	return BaseWrapper{
 		connChan: make(chan acceptor.PlayerConn),
@@ -44,6 +49,8 @@ func NewBaseWrapper(wrapConn func(acceptor.PlayerConn) acceptor.PlayerConn) Base
 
 // ListenAndServe starts a goroutine that wraps acceptor's conn
 // and calls acceptor's listenAndServe
+// ListenAndServe启动一个goroutine，封装了acceptor的conn
+// 调用acceptor的listenAndServe
 func (b *BaseWrapper) ListenAndServe() {
 	go b.pipe()
 	b.Acceptor.ListenAndServe()
@@ -54,6 +61,7 @@ func (b *BaseWrapper) GetConnChan() chan acceptor.PlayerConn {
 	return b.connChan
 }
 
+// 循環去除connchan
 func (b *BaseWrapper) pipe() {
 	for conn := range b.Acceptor.GetConnChan() {
 		b.connChan <- b.wrapConn(conn)

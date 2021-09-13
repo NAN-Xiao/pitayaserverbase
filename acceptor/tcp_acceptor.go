@@ -42,6 +42,7 @@ type TCPAcceptor struct {
 	certFile string
 	keyFile  string
 }
+
 // tcp 的player连接
 type tcpPlayerConn struct {
 	net.Conn
@@ -49,6 +50,7 @@ type tcpPlayerConn struct {
 
 // GetNextMessage reads the next message available in the stream
 // 获取下一个信息
+// net底層 readall 讀取消息頭 消息體 並返回
 func (t *tcpPlayerConn) GetNextMessage() (b []byte, err error) {
 	//读取消息 从playerconn HeadLength 默认是4字节
 	header, err := ioutil.ReadAll(io.LimitReader(t.Conn, codec.HeadLength))
@@ -159,6 +161,7 @@ func (a *TCPAcceptor) ListenAndServeTLS(cert, key string) {
 	a.running = true
 	a.serve()
 }
+
 //开启服务
 // 放入chan吧tcpplayconn
 func (a *TCPAcceptor) serve() {

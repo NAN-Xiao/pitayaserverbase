@@ -43,6 +43,7 @@ type doc struct {
 }
 
 // HandlersDocs returns a map from route to input and output
+// 返回一个从路由到输入和输出的映射
 func HandlersDocs(serverType string, services map[string]*component.Service, getPtrNames bool) (map[string]interface{}, error) {
 	docs := &docs{
 		Handlers: map[string]*doc{},
@@ -59,6 +60,7 @@ func HandlersDocs(serverType string, services map[string]*component.Service, get
 }
 
 // RemotesDocs returns a map from route to input and output
+// 返回一个从路由到输入和输出的映射
 func RemotesDocs(serverType string, services map[string]*component.Service, getPtrNames bool) (map[string]interface{}, error) {
 	docs := &docs{
 		Remotes: map[string]*doc{},
@@ -87,6 +89,7 @@ func (d docMap) toMap() (map[string]interface{}, error) {
 	return m, nil
 }
 
+//診斷函數
 func docForMethod(method reflect.Method, getPtrNames bool) *doc {
 	doc := &doc{
 		Output: []interface{}{},

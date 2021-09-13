@@ -39,6 +39,15 @@ import (
 // Read is droped and ignored by pitaya.
 // On the client side, this will yield a timeout error and the client must
 // be prepared to handle it.
+// RateLimiter包装net。Conn通过应用速率限制和返回空
+// 如果超过。它使用漏水的桶
+// 算法(https://en.wikipedia.org/wiki/Leaky_bucket)。
+// 在这里，“limit”是在一个“interval”持续时间内它接受的请求数。
+// 请求后，槽被占用，只有在“interval”之后才被释放
+// 持续时间。如果在没有可用槽时出现新的请求，则从
+// 火龙果将删除Read。
+// 在客户端，这将产生超时错误，客户端必须
+// 准备好处理它。
 type RateLimiter struct {
 	acceptor.PlayerConn
 	reporters    []metrics.Reporter
@@ -49,6 +58,7 @@ type RateLimiter struct {
 }
 
 // NewRateLimiter returns an initialized *RateLimiting
+// 返回一个初始化的*RateLimiting
 func NewRateLimiter(
 	reporters []metrics.Reporter,
 	conn acceptor.PlayerConn,

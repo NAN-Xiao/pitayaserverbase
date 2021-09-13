@@ -28,6 +28,7 @@ import (
 )
 
 // Type represents the type of message, which could be Request/Notify/Response/Push
+// 表示消息的类型，可以是Request/Notify/Response/Push
 type Type byte
 
 // Message types
@@ -61,6 +62,7 @@ var (
 )
 
 // Errors that could be occurred in message codec
+// 在消息编解码器中可能发生的错误
 var (
 	ErrWrongMessageType  = errors.New("wrong message type")
 	ErrInvalidMessage    = errors.New("invalid message")
@@ -68,6 +70,7 @@ var (
 )
 
 // Message represents a unmarshaled message or a message which to be marshaled
+// 表示未编组的消息或待编组的消息
 type Message struct {
 	Type       Type   // message type
 	ID         uint   // unique id, zero while notify mode
@@ -78,6 +81,7 @@ type Message struct {
 }
 
 // New returns a new message instance
+// 創建消息的實例
 func New(err ...bool) *Message {
 	m := &Message{}
 	if len(err) > 0 {
@@ -87,6 +91,7 @@ func New(err ...bool) *Message {
 }
 
 // String, implementation of fmt.Stringer interface
+// 轉成字符串
 func (m *Message) String() string {
 	return fmt.Sprintf("Type: %s, ID: %d, Route: %s, Compressed: %t, Error: %t, Data: %v, BodyLength: %d",
 		types[m.Type],
@@ -98,16 +103,19 @@ func (m *Message) String() string {
 		len(m.Data))
 }
 
+//可發送的
 func routable(t Type) bool {
 	return t == Request || t == Notify || t == Push
 }
 
+//無效的
 func invalidType(t Type) bool {
 	return t < Request || t > Push
 
 }
 
 // SetDictionary set routes map which be used to compress route.
+// 使用壓縮的路由map
 func SetDictionary(dict map[string]uint16) error {
 	if dict == nil {
 		return nil
@@ -136,6 +144,7 @@ func SetDictionary(dict map[string]uint16) error {
 }
 
 // GetDictionary gets the routes map which is used to compress route.
+// 返回字典
 func GetDictionary() map[string]uint16 {
 	routesCodesMutex.RLock()
 	defer routesCodesMutex.RUnlock()
@@ -146,6 +155,7 @@ func GetDictionary() map[string]uint16 {
 	return dict
 }
 
+// 返回類型的string
 func (t *Type) String() string {
 	return types[*t]
 }

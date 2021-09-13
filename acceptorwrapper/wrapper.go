@@ -28,6 +28,10 @@ import (
 // that implements must encapsulate it. The main goal is to create
 // a middleware for packets of net.Conn from acceptor.GetConnChan before
 // giving it to serviceHandler.
+// 包装器有一个方法接收一个接受器和结构体
+// 实现的对象必须封装它。主要目标是创造
+// 网络包的中间件。GetConnChan之前
+// 将它赋给serviceHandler
 type Wrapper interface {
 	Wrap(acceptor.Acceptor) acceptor.Acceptor
 }
