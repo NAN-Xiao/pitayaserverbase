@@ -25,6 +25,7 @@ import (
 )
 
 // Packet represents a network packet.
+// 表示一个网络数据包
 type Packet struct {
 	Type   Type
 	Length int
@@ -32,11 +33,13 @@ type Packet struct {
 }
 
 //New create a Packet instance.
+// 創建新的網絡數據包
 func New() *Packet {
 	return &Packet{}
 }
 
 //String represents the Packet's in text mode.
+// 表示数据包处于文本模式。
 func (p *Packet) String() string {
 	return fmt.Sprintf("Type: %d, Length: %d, Data: %s", p.Type, p.Length, string(p.Data))
 }

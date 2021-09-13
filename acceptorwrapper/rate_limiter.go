@@ -80,6 +80,7 @@ func NewRateLimiter(
 }
 
 // GetNextMessage gets the next message in the connection
+// 讀取conn的message
 func (r *RateLimiter) GetNextMessage() (msg []byte, err error) {
 	if r.forceDisable {
 		return r.PlayerConn.GetNextMessage()
@@ -104,6 +105,8 @@ func (r *RateLimiter) GetNextMessage() (msg []byte, err error) {
 
 // shouldRateLimit saves the now as time taken or returns an error if
 // in the limit of rate limiting
+// 将保存为花费的时间或返回一个错误
+// 在速率限制
 func (r *RateLimiter) shouldRateLimit(now time.Time) bool {
 	if r.times.Len() < r.limit {
 		r.times.PushBack(now)

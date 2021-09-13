@@ -27,9 +27,11 @@ import (
 )
 
 // PomeloPacketDecoder reads and decodes network data slice following pomelo's protocol
+// 按照柚子的协议读取和解码网络数据片
 type PomeloPacketDecoder struct{}
 
 // NewPomeloPacketDecoder returns a new decoder that used for decode network bytes slice.
+// 返回用于解码网络字节片的新解码器。
 func NewPomeloPacketDecoder() *PomeloPacketDecoder {
 	return &PomeloPacketDecoder{}
 }
@@ -40,6 +42,7 @@ func (c *PomeloPacketDecoder) forward(buf *bytes.Buffer) (int, packet.Type, erro
 }
 
 // Decode decode the network bytes slice to packet.Packet(s)
+// Decode将网络字节片解码到数据包。
 func (c *PomeloPacketDecoder) Decode(data []byte) ([]*packet.Packet, error) {
 	buf := bytes.NewBuffer(nil)
 	buf.Write(data)
@@ -49,11 +52,13 @@ func (c *PomeloPacketDecoder) Decode(data []byte) ([]*packet.Packet, error) {
 		err     error
 	)
 	// check length
+	// 检查长度
 	if buf.Len() < HeadLength {
 		return nil, nil
 	}
 
 	// first time
+	// 第一次
 	size, typ, err := c.forward(buf)
 	if err != nil {
 		return nil, err
@@ -64,6 +69,7 @@ func (c *PomeloPacketDecoder) Decode(data []byte) ([]*packet.Packet, error) {
 		packets = append(packets, p)
 
 		// if no more packets, break
+		// 没有更多的数据包，跳出
 		if buf.Len() < HeadLength {
 			break
 		}
