@@ -53,6 +53,7 @@ func (app *App) RegisterModuleAfter(module interfaces.Module, name string) error
 }
 
 // RegisterModuleBefore registers a module before all registered modules
+// 注册用户模块之前先注册一个系统模块
 func (app *App) RegisterModuleBefore(module interfaces.Module, name string) error {
 	if err := app.alreadyRegistered(name); err != nil {
 		return err

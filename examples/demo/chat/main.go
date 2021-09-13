@@ -133,7 +133,7 @@ func main() {
 	//得到一个组的实例
 	builder.Groups = groups.NewMemoryGroupService(*config.NewDefaultMemoryGroupConfig())
 	//builder来创建app
-	app = builder.Build()
+	app = builder.Build() //build的工作很多。请仔细查看。包括app主要的 各种服务器创建 。rpc服务创建 工厂类实例化
 	//延迟关闭app
 	defer app.Shutdown()
 	//创建组
@@ -163,10 +163,10 @@ func main() {
 
 //配置app
 func configApp() *config.BuilderConfig {
-	conf := config.NewDefaultBuilderConfig()
-	conf.Pitaya.Buffer.Handler.LocalProcess = 15
-	conf.Pitaya.Heartbeat.Interval = time.Duration(15 * time.Second) //心跳时间
-	conf.Pitaya.Buffer.Agent.Messages = 32
+	conf := config.NewDefaultBuilderConfig() //默认的buildconfig
+	conf.Pitaya.Buffer.Handler.LocalProcess = 15 //本地处理。15是什么？
+	conf.Pitaya.Heartbeat.Interval = time.Duration(15 * time.Second) //心跳时间间隔
+	conf.Pitaya.Buffer.Agent.Messages = 32  //Messages 不知道什么意思 证书类型
 	conf.Pitaya.Handler.Messages.Compression = false //压缩消息
 	return conf
 }

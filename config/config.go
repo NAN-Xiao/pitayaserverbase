@@ -113,23 +113,24 @@ func NewPitayaConfig(config *Config) *PitayaConfig {
 
 // BuilderConfig provides configuration for Builder
 type BuilderConfig struct {
-	Pitaya  PitayaConfig
-	Metrics struct {
-		Prometheus struct {
-			Enabled bool
+	Pitaya  PitayaConfig  // pitaya配置
+	Metrics struct {      //数据结构体
+		Prometheus struct { //普罗米修斯
+			Enabled bool //激活
 		}
-		Statsd struct {
-			Enabled bool
+		Statsd struct {  //规则
+			Enabled bool //激活
 		}
 	}
-	DefaultPipelines struct {
-		StructValidation struct {
-			Enabled bool
+	DefaultPipelines struct { //默认管线
+		StructValidation struct { //结构验证
+			Enabled bool //激活
 		}
 	}
 }
 
 // NewDefaultBuilderConfig provides default builder configuration
+// 提供默认的构建器配置
 func NewDefaultBuilderConfig() *BuilderConfig {
 	return &BuilderConfig{
 		Pitaya: *NewDefaultPitayaConfig(),
@@ -549,6 +550,7 @@ type MemoryGroupConfig struct {
 }
 
 // NewDefaultMemoryGroupConfig returns a new, default group instance
+// 返回一个新的默认的组的实例对象
 func NewDefaultMemoryGroupConfig() *MemoryGroupConfig {
 	return &MemoryGroupConfig{TickDuration: time.Duration(30 * time.Second)}
 }
