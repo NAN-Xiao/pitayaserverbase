@@ -2,6 +2,7 @@
 // Source: github.com/topfreegames/pitaya/v2/acceptor (interfaces: PlayerConn,Acceptor)
 
 // Package mocks is a generated GoMock package.
+// mock是一个生成的GoMock包。
 package mocks
 
 import (

@@ -44,6 +44,7 @@ func (m *MockPitaya) EXPECT() *MockPitayaMockRecorder {
 }
 
 // AddRoute mocks base method
+//
 func (m *MockPitaya) AddRoute(arg0 string, arg1 router.RoutingFunc) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddRoute", arg0, arg1)
