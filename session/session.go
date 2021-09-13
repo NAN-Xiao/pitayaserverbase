@@ -372,6 +372,7 @@ func (s *sessionImpl) SetFrontendData(frontendID string, frontendSessionID int64
 }
 
 // Bind bind UID to current session
+// 绑定uid到当前会话
 func (s *sessionImpl) Bind(ctx context.Context, uid string) error {
 	if uid == "" {
 		return constants.ErrIllegalUID

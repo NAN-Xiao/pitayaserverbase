@@ -64,6 +64,7 @@ func NewWorker(config config.WorkerConfig, opts config.EnqueueOpts) (*Worker, er
 }
 
 // SetLogger overwrites worker logger
+// 覆盖worker的logger
 func (w *Worker) SetLogger(logger interfaces.Logger) {
 	workers.Logger = logger
 }

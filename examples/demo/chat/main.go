@@ -79,34 +79,41 @@ func (r *Room) AfterInit() {
 // Join room
 // 加入房间
 func (r *Room) Join(ctx context.Context, msg []byte) (*JoinResponse, error) {
+	//从上下文获取会话
 	s := r.app.GetSessionFromCtx(ctx)
+
 	fakeUID := s.ID()                              // just use s.ID as uid !!!
 	err := s.Bind(ctx, strconv.Itoa(int(fakeUID))) // binding session uid
 
 	if err != nil {
 		return nil, pitaya.Error(err, "RH-000", map[string]string{"failed": "bind"})
 	}
-
+	//得到当前所有成员 房间
 	uids, err := r.app.GroupMembers(ctx, "room")
 	if err != nil {
 		return nil, err
 	}
+	//push给所有成员
 	s.Push("onMembers", &AllMembers{Members: uids})
 	// notify others
+	//通知其他 广播
 	r.app.GroupBroadcast(ctx, "chat", "room", "onNewUser", &NewUser{Content: fmt.Sprintf("New user: %s", s.UID())})
 	// new user join group
+	//广播新用户进入
 	r.app.GroupAddMember(ctx, "room", s.UID()) // add session to group
 
 	// on session close, remove it from group
+	// 当会话关闭，把会话从组移除
 	s.OnClose(func() {
 		r.app.GroupRemoveMember(ctx, "room", s.UID())
 	})
-
+ 	//返回加入成功
 	return &JoinResponse{Result: "success"}, nil
 }
 
 // Message sync last message to all members
 // 同步最后一条消息给所有成员
+// 广播消息msg
 func (r *Room) Message(ctx context.Context, msg *UserMessage) {
 	err := r.app.GroupBroadcast(ctx, "chat", "room", "onMessage", msg)
 	if err != nil {
