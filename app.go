@@ -131,7 +131,7 @@ type Pitaya interface {
 type App struct {
 	//接收器
 	acceptors        []acceptor.Acceptor //接收器 应该就是本地监听端口
-	config           config.PitayaConfig
+	config           config.PitayaConfig //配置
 	debug            bool
 	dieChan          chan bool
 	heartbeat        time.Duration

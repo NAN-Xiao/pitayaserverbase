@@ -180,12 +180,13 @@ func newAgent(
 	sessionPool session.SessionPool,
 ) Agent {
 	// initialize heartbeat and handshake data on first user connection
+	// 在第一次用户连接时初始化心跳和握手数据
 	serializerName := serializer.GetName()
 
 	once.Do(func() {
 		hbdEncode(heartbeatTime, packetEncoder, messageEncoder.IsCompressionEnabled(), serializerName)
 	})
-
+	//创建agentimpl 的具体实现
 	a := &agentImpl{
 		appDieChan:         dieChan,
 		chDie:              make(chan struct{}),
