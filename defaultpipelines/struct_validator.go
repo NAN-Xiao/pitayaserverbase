@@ -8,6 +8,7 @@ import (
 // by a struct validator for the request arguments on pitaya.
 //
 // The default struct validator used by pitaya is https://github.com/go-playground/validator.
+// 使用的默认结构验证器是https://github.com/go-playground/validator。
 type StructValidator interface {
 	Validate(context.Context, interface{}) (context.Context, interface{}, error)
 }

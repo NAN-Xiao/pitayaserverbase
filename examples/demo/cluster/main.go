@@ -19,19 +19,22 @@ import (
 
 var app pitaya.Pitaya
 
+//配置後臺服務器
 func configureBackend() {
 	room := services.NewRoom(app)
+	//注冊房價
 	app.Register(room,
 		component.WithName("room"),
 		component.WithNameFunc(strings.ToLower),
 	)
-
+	//遠程注冊房間
 	app.RegisterRemote(room,
 		component.WithName("room"),
 		component.WithNameFunc(strings.ToLower),
 	)
 }
 
+// 配置前臺服務器
 func configureFrontend(port int) {
 	app.Register(services.NewConnector(app),
 		component.WithName("connector"),
@@ -43,12 +46,7 @@ func configureFrontend(port int) {
 		component.WithNameFunc(strings.ToLower),
 	)
 
-	err := app.AddRoute("room", func(
-		ctx context.Context,
-		route *route.Route,
-		payload []byte,
-		servers map[string]*cluster.Server,
-	) (*cluster.Server, error) {
+	err := app.AddRoute("room", func(ctx context.Context,route *route.Route,payload []byte,servers map[string]*cluster.Server,) (*cluster.Server, error) {
 		// will return the first server
 		for k := range servers {
 			return servers[k], nil
