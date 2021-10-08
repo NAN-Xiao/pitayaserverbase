@@ -32,8 +32,8 @@ type Builder struct {
 	MessageEncoder   *message.MessagesEncoder
 	Serializer       serialize.Serializer
 	Router           *router.Router
-	RPCClient        cluster.RPCClient
-	RPCServer        cluster.RPCServer
+	RPCClient        cluster.RPCClient // cluster.rpcclient
+	RPCServer        cluster.RPCServer // cluster.rpccserver
 	MetricsReporters []metrics.Reporter
 	Server           *cluster.Server
 	ServerMode       ServerMode
@@ -130,8 +130,8 @@ func NewBuilder(isFrontend bool, //是否前台服务
 	prometheusConfig config.PrometheusConfig, //普罗米修斯配置
 	statsdConfig config.StatsdConfig, //启动配置
 	etcdSDConfig config.EtcdServiceDiscoveryConfig, //服务器发现配置
-	natsRPCServerConfig config.NatsRPCServerConfig, //远程rpc服务
-	natsRPCClientConfig config.NatsRPCClientConfig, //远程rpc客户端
+	natsRPCServerConfig config.NatsRPCServerConfig, //远程rpc服务配置
+	natsRPCClientConfig config.NatsRPCClientConfig, //远程rpc客户端配置
 	workerConfig config.WorkerConfig, //worker配置
 	enqueueOpts config.EnqueueOpts, //配置队列设置
 	groupServiceConfig config.MemoryGroupConfig, //存储配置
@@ -158,8 +158,10 @@ func NewBuilder(isFrontend bool, //是否前台服务
 	var serviceDiscovery cluster.ServiceDiscovery
 	var rpcServer cluster.RPCServer
 	var rpcClient cluster.RPCClient
+	//如果是集群
 	if serverMode == Cluster {
 		var err error
+		//new服務發現
 		serviceDiscovery, err = cluster.NewEtcdServiceDiscovery(etcdSDConfig, server, dieChan)
 		if err != nil {
 			logger.Log.Fatalf("error creating default cluster service discovery component: %s", err.Error())
@@ -209,6 +211,7 @@ func NewBuilder(isFrontend bool, //是否前台服务
 }
 
 // AddAcceptor adds a new acceptor to app
+// 添加一個新的接收器 ==監聽方式端口等
 func (builder *Builder) AddAcceptor(ac acceptor.Acceptor) {
 	if !builder.Server.Frontend {
 		logger.Log.Error("tried to add an acceptor to a backend server, skipping")
@@ -226,19 +229,22 @@ func (builder *Builder) AddAcceptor(ac acceptor.Acceptor) {
 // 创建handlerservice 服务
 
 func (builder *Builder) Build() Pitaya {
+
 	handlerPool := service.NewHandlerPool()
+	//建立遠程服務
 	var remoteService *service.RemoteService
+	//如果是獨立的服務不是集群
 	if builder.ServerMode == Standalone {
 		if builder.ServiceDiscovery != nil || builder.RPCClient != nil || builder.RPCServer != nil {
-			panic("Standalone mode can't have RPC or service discovery instances")
+			panic("Standalone mode can't have RPC or service discovery instances") //獨立服務不能包含rpc 和服務發現
 		}
-	} else {
+	} else { //如果是集群服務
 		if !(builder.ServiceDiscovery != nil && builder.RPCClient != nil && builder.RPCServer != nil) {
-			panic("Cluster mode must have RPC and service discovery instances")
+			panic("Cluster mode must have RPC and service discovery instances") //集群服務必須包含rpc 和服務發現
 		}
-
+		// 路由設服務發現
 		builder.Router.SetServiceDiscovery(builder.ServiceDiscovery)
-
+		//遠程服務 服務和服務之間
 		remoteService = service.NewRemoteService(
 			builder.RPCClient,
 			builder.RPCServer,
@@ -252,10 +258,11 @@ func (builder *Builder) Build() Pitaya {
 			builder.HandlerHooks,
 			handlerPool,
 		)
-
+		//設置rpc
 		builder.RPCServer.SetPitayaServer(remoteService)
 	}
 
+	// agent工廠
 	agentFactory := agent.NewAgentFactory(builder.DieChan,
 		builder.PacketDecoder,
 		builder.PacketEncoder,

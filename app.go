@@ -109,6 +109,7 @@ type Pitaya interface {
 	GroupCreate(ctx context.Context, groupName string) error
 	GroupCreateWithTTL(ctx context.Context, groupName string, ttlTime time.Duration) error
 	GroupMembers(ctx context.Context, groupName string) ([]string, error)
+	//上下文 ，front
 	GroupBroadcast(ctx context.Context, frontendType, groupName, route string, v interface{}) error
 	GroupContainsMember(ctx context.Context, groupName, uid string) (bool, error)
 	GroupAddMember(ctx context.Context, groupName, uid string) error
@@ -130,31 +131,31 @@ type Pitaya interface {
 // App is the base app struct
 type App struct {
 	//接收器
-	acceptors        []acceptor.Acceptor //接收器 应该就是本地监听端口
-	config           config.PitayaConfig //配置
-	debug            bool //log
-	dieChan          chan bool //
-	heartbeat        time.Duration //心跳时间
-	onSessionBind    func(session.Session) //会话绑定
-	router           *router.Router //路由
-	rpcClient        cluster.RPCClient //rpc客户端
-	rpcServer        cluster.RPCServer //rpc服务
-	metricsReporters []metrics.Reporter //周期报告
-	running          bool //正在运行
-	serializer       serialize.Serializer //序列化器
-	server           *cluster.Server //集群
-	serverMode       ServerMode //模式
-	serviceDiscovery cluster.ServiceDiscovery //服务器发现
-	startAt          time.Time //计时
-	worker           *worker.Worker //工作
-	remoteService    *service.RemoteService //远程服务器
-	handlerService   *service.HandlerService //句柄处理服务
-	handlerComp      []regComp //句柄组件
-	remoteComp       []regComp //远程组件
+	acceptors        []acceptor.Acceptor          //接收器 应该就是本地监听端口
+	config           config.PitayaConfig          //配置
+	debug            bool                         //log
+	dieChan          chan bool                    //
+	heartbeat        time.Duration                //心跳时间
+	onSessionBind    func(session.Session)        //会话绑定
+	router           *router.Router               //路由
+	rpcClient        cluster.RPCClient            //rpc客户端
+	rpcServer        cluster.RPCServer            //rpc服务
+	metricsReporters []metrics.Reporter           //周期报告
+	running          bool                         //正在运行
+	serializer       serialize.Serializer         //序列化器
+	server           *cluster.Server              //集群
+	serverMode       ServerMode                   //模式
+	serviceDiscovery cluster.ServiceDiscovery     //服务器发现
+	startAt          time.Time                    //计时
+	worker           *worker.Worker               //工作
+	remoteService    *service.RemoteService       //远程服务器
+	handlerService   *service.HandlerService      //句柄处理服务
+	handlerComp      []regComp                    //句柄组件
+	remoteComp       []regComp                    //远程组件
 	modulesMap       map[string]interfaces.Module //模块
-	modulesArr       []moduleWrapper //包装模块
-	groups           groups.GroupService //组的服务 一般用来划分玩家组 ？？？按照地图 房间等逻辑
-	sessionPool      session.SessionPool //会话池
+	modulesArr       []moduleWrapper              //包装模块
+	groups           groups.GroupService          //组的服务 一般用来划分玩家组 ？？？按照地图 房间等逻辑
+	sessionPool      session.SessionPool          //会话池
 }
 
 // NewApp is the base constructor for a pitaya app instance
@@ -357,7 +358,7 @@ func (app *App) Start() {
 	app.shutdownComponents()
 }
 
-//循环监听
+//啓動所有的component，循环监听
 func (app *App) listen() {
 	app.startupComponents()
 	// create global ticker instance, timer precision could be customized

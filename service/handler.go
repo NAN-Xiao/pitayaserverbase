@@ -24,9 +24,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/nats-io/nuid"
 	"strings"
 	"time"
+
+	"github.com/nats-io/nuid"
 
 	"github.com/topfreegames/pitaya/v2/acceptor"
 	"github.com/topfreegames/pitaya/v2/pipeline"
@@ -168,6 +169,7 @@ func (h *HandlerService) Handle(conn acceptor.PlayerConn) {
 	a := h.agentFactory.CreateAgent(conn)
 
 	// startup agent goroutine
+	// 啓動agent的goroutine
 	go a.Handle()
 
 	logger.Log.Debugf("New session established: %s", a.String())
@@ -213,7 +215,7 @@ func (h *HandlerService) Handle(conn acceptor.PlayerConn) {
 
 func (h *HandlerService) processPacket(a agent.Agent, p *packet.Packet) error {
 	switch p.Type {
-	case packet.Handshake://握手
+	case packet.Handshake: //握手
 		logger.Log.Debug("Received handshake packet")
 		if err := a.SendHandshakeResponse(); err != nil {
 			logger.Log.Errorf("Error sending handshake response: %s", err.Error())

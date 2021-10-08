@@ -25,7 +25,9 @@ type (
 	// Room represents a component that contains a bundle of room related handler
 	// like Join/Message
 	// Room表示包含一组与Room相关的处理程序的组件
-  	// /加入/信息
+	// /加入/信息
+	// room是一個component
+	// app 成員是pitaya.Pitaya
 	Room struct {
 		component.Base
 		timer *timer.Timer
@@ -107,7 +109,7 @@ func (r *Room) Join(ctx context.Context, msg []byte) (*JoinResponse, error) {
 	s.OnClose(func() {
 		r.app.GroupRemoveMember(ctx, "room", s.UID())
 	})
- 	//返回加入成功
+	//返回加入成功
 	return &JoinResponse{Result: "success"}, nil
 }
 
@@ -128,7 +130,7 @@ func main() {
 	conf := configApp()
 	//返回builder
 	builder := pitaya.NewDefaultBuilder(true, "chat", pitaya.Cluster, map[string]string{}, *conf)
-	//添加一个接收器
+	//添加一个接收器 這裏是一個websocket 監聽3250
 	builder.AddAcceptor(acceptor.NewWSAcceptor(":3250"))
 	//得到一个组的实例
 	builder.Groups = groups.NewMemoryGroupService(*config.NewDefaultMemoryGroupConfig())
@@ -151,9 +153,9 @@ func main() {
 		component.WithName("room"),
 		component.WithNameFunc(strings.ToLower),
 	)
-
+	//设置log的标志
 	log.SetFlags(log.LstdFlags | log.Llongfile)
-
+	//返回打开聊天网页
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web"))))
 	//http监听服务
 	go http.ListenAndServe(":3251", nil)
@@ -163,10 +165,10 @@ func main() {
 
 //配置app
 func configApp() *config.BuilderConfig {
-	conf := config.NewDefaultBuilderConfig() //默认的buildconfig
-	conf.Pitaya.Buffer.Handler.LocalProcess = 15 //本地处理。15是什么？
+	conf := config.NewDefaultBuilderConfig()                         //默认的buildconfig
+	conf.Pitaya.Buffer.Handler.LocalProcess = 15                     //本地处理。15是什么？
 	conf.Pitaya.Heartbeat.Interval = time.Duration(15 * time.Second) //心跳时间间隔
-	conf.Pitaya.Buffer.Agent.Messages = 32  //Messages 不知道什么意思 证书类型
-	conf.Pitaya.Handler.Messages.Compression = false //压缩消息
+	conf.Pitaya.Buffer.Agent.Messages = 32                           //Messages 不知道什么意思 证书类型
+	conf.Pitaya.Handler.Messages.Compression = false                 //压缩消息
 	return conf
 }

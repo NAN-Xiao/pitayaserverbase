@@ -507,6 +507,7 @@ func (a *agentImpl) write() {
 		select {
 		case pWrite := <-a.chSend:
 			// close agent if low-level Conn broken
+			// 如果底層鏈接斷開就關閉agent
 			if _, err := a.conn.Write(pWrite.data); err != nil {
 				tracing.FinishSpan(pWrite.ctx, err)
 				metrics.ReportTimingFromCtx(pWrite.ctx, a.metricsReporters, handlerType, err)

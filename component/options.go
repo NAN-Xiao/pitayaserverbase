@@ -22,8 +22,8 @@ package component
 
 type (
 	options struct {
-		name     string              // component name
-		nameFunc func(string) string // rename handler name
+		name     string              // component name 组件的名字
+		nameFunc func(string) string // rename handler name //重命名handler
 	}
 
 	// Option used to customize handler
@@ -31,6 +31,7 @@ type (
 )
 
 // WithName used to rename component name
+// 重命名组件名称
 func WithName(name string) Option {
 	return func(opt *options) {
 		opt.name = name
@@ -39,6 +40,8 @@ func WithName(name string) Option {
 
 // WithNameFunc override handler name by specific function
 // such as: strings.ToUpper/strings.ToLower
+// WithNameFunc通过特定函数覆盖处理程序名称
+// 例如:strings.ToUpper/strings.ToLower
 func WithNameFunc(fn func(string) string) Option {
 	return func(opt *options) {
 		opt.nameFunc = fn
